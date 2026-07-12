@@ -8,13 +8,12 @@ interface ModalProps {
   title: string;
   description?: string;
   children: ReactNode;
-  size?: "sm" | "md" | "lg";
+  size?: "sm" | "md" | "lg" | "xl";
 }
 
-const sizes = { sm: "max-w-sm", md: "max-w-lg", lg: "max-w-2xl" };
+const sizes = { sm: "max-w-sm", md: "max-w-lg", lg: "max-w-2xl", xl: "max-w-4xl" };
 
 export function Modal({ open, onClose, title, description, children, size = "md" }: ModalProps) {
-  // Close on Escape
   useEffect(() => {
     if (!open) return;
     const handler = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
@@ -28,7 +27,7 @@ export function Modal({ open, onClose, title, description, children, size = "md"
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+        className="absolute inset-0 bg-slate-900/50 backdrop-blur-sm"
         onClick={onClose}
         aria-hidden="true"
       />
@@ -38,26 +37,27 @@ export function Modal({ open, onClose, title, description, children, size = "md"
         aria-modal="true"
         aria-labelledby="modal-title"
         className={cn(
-          "relative w-full rounded-xl bg-white shadow-xl",
+          "relative w-full rounded-2xl bg-white shadow-2xl",
+          "animate-in fade-in-0 zoom-in-95 duration-200",
           sizes[size]
         )}
       >
         {/* Header */}
-        <div className="flex items-start justify-between border-b border-slate-100 px-6 py-4">
+        <div className="flex items-start justify-between border-b border-slate-100 px-6 py-5">
           <div>
-            <h2 id="modal-title" className="text-base font-semibold text-slate-900">
+            <h2 id="modal-title" className="text-base font-semibold text-slate-900 leading-tight">
               {title}
             </h2>
             {description && (
-              <p className="mt-0.5 text-sm text-slate-500">{description}</p>
+              <p className="mt-1 text-sm text-slate-500">{description}</p>
             )}
           </div>
           <button
             onClick={onClose}
-            className="ml-4 rounded-lg p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
+            className="ml-4 rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors"
             aria-label="Close"
           >
-            <X className="h-5 w-5" />
+            <X className="h-4 w-4" />
           </button>
         </div>
         {/* Body */}
