@@ -20,6 +20,7 @@ import {
   Calendar,
   Wrench,
   ClipboardList,
+  BarChart2,
   Bell,
   LogOut,
   Menu,
@@ -72,6 +73,12 @@ const NAV_ITEMS: NavItem[] = [
     to: "/audit",
     icon: <ClipboardList className="h-4 w-4" />,
     roles: ["SUPER_ADMIN", "ADMIN", "AUDITOR"],
+  },
+  {
+    label: "Reports",
+    to: "/reports",
+    icon: <BarChart2 className="h-4 w-4" />,
+    roles: ["SUPER_ADMIN", "ADMIN", "MANAGER", "AUDITOR"],
   },
   {
     label: "Employees",

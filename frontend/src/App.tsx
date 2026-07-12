@@ -30,6 +30,7 @@ import AllocationsPage from "@/pages/allocations/AllocationsPage";
 import BookingsPage from "@/pages/bookings/BookingsPage";
 import MaintenancePage from "@/pages/maintenance/MaintenancePage";
 import AuditPage from "@/pages/audit/AuditPage";
+import ReportsPage from "@/pages/reports/ReportsPage";
 
 // ── TanStack Query client ──────────────────────────────────────────────────────
 const queryClient = new QueryClient({
@@ -71,6 +72,7 @@ function AppInner() {
           <Route path="/bookings" element={<BookingsPage />} />
           <Route path="/maintenance" element={<MaintenancePage />} />
           <Route path="/audit" element={<AuditPage />} />
+          <Route path="/reports" element={<ReportsPage />} />
         </Route>
         <Route
           element={<ProtectedRoute allowedRoles={["SUPER_ADMIN", "ADMIN"]} />}
