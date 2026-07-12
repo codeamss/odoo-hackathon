@@ -5,6 +5,7 @@ via `Base.metadata` when `env.py` does `from app.models import *`.
 from app.models.asset import Asset, AssetStatusHistory
 from app.models.asset_category import AssetCategory
 from app.models.allocation import Allocation
+from app.models.audit import AuditCycle, AuditCycleAuditor, AuditFinding
 from app.models.booking import Booking
 from app.models.department import Department
 from app.models.enums import (
