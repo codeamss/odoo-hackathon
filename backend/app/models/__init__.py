@@ -8,6 +8,7 @@ from app.models.allocation import Allocation
 from app.models.audit import AuditCycle, AuditCycleAuditor, AuditFinding
 from app.models.booking import Booking
 from app.models.department import Department
+from app.models.notification import ActivityLog, Notification
 from app.models.enums import (
     AllocationStatus,
     AssetStatus,

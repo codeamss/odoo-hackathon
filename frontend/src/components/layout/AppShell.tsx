@@ -13,24 +13,12 @@
 import { useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import {
-  LayoutDashboard,
-  Package,
-  Users,
-  Building2,
-  Calendar,
-  Wrench,
-  ClipboardList,
-  BarChart2,
-  Bell,
-  LogOut,
-  Menu,
-  X,
-  ChevronRight,
-  Settings,
+  LayoutDashboard, Package, Users, Building2, Calendar,
+  Wrench, ClipboardList, BarChart2, Bell, LogOut, Menu, X, ChevronRight, Settings,
 } from "lucide-react";
-
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/stores/authStore";
+import { useNotifications } from "@/hooks/useNotifications";
 import type { UserRole } from "@/types/auth";
 
 // ── Nav items ─────────────────────────────────────────────────────────────────
@@ -258,6 +246,8 @@ interface AppShellProps {
 
 export function AppShell({ title, children, notificationCount }: AppShellProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { data: notifData } = useNotifications({ unread_only: true, limit: 1 });
+  const liveCount = notifData?.unread_count ?? notificationCount ?? 0;
 
   return (
     <div className="flex min-h-screen bg-slate-50">
@@ -268,7 +258,7 @@ export function AppShell({ title, children, notificationCount }: AppShellProps) 
         <TopBar
           title={title}
           onMenuClick={() => setSidebarOpen(true)}
-          notificationCount={notificationCount}
+          notificationCount={liveCount}
         />
         <main className="flex-1 overflow-y-auto p-6">{children}</main>
       </div>
