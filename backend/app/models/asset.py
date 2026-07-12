@@ -35,6 +35,7 @@ class Asset(Base):
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
     serial_number: Mapped[str | None] = mapped_column(String(255), nullable=True, index=True)
     location: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    condition: Mapped[str | None] = mapped_column(String(100), nullable=True)
 
     # ── Category & department ──────────────────────────────────────────────────
     category_id: Mapped[uuid.UUID | None] = mapped_column(
