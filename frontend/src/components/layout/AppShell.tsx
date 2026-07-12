@@ -57,6 +57,11 @@ const NAV_ITEMS: NavItem[] = [
     icon: <Wrench className="h-4 w-4" />,
   },
   {
+    label: "Notifications",
+    to: "/notifications",
+    icon: <Bell className="h-4 w-4" />,
+  },
+  {
     label: "Audit",
     to: "/audit",
     icon: <ClipboardList className="h-4 w-4" />,
@@ -78,12 +83,6 @@ const NAV_ITEMS: NavItem[] = [
     label: "Organization",
     to: "/organization",
     icon: <Building2 className="h-4 w-4" />,
-    roles: ["SUPER_ADMIN", "ADMIN"],
-  },
-  {
-    label: "Settings",
-    to: "/settings",
-    icon: <Settings className="h-4 w-4" />,
     roles: ["SUPER_ADMIN", "ADMIN"],
   },
 ];
