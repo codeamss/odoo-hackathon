@@ -1,28 +1,36 @@
 """
 Core security helpers: password hashing and JWT creation/verification.
-Business logic (service layer) calls these directly.
+Uses bcrypt directly (avoids passlib/bcrypt 5.x incompatibility on Python 3.13).
 """
 from datetime import datetime, timedelta, timezone
 from typing import Any
 
+import bcrypt
 from jose import JWTError, jwt
-from passlib.context import CryptContext
 
 from app.core.config import settings
 
-# ── Bcrypt context ─────────────────────────────────────────────────────────────
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
+# ── Bcrypt password hashing ────────────────────────────────────────────────────
 
 def hash_password(plain: str) -> str:
-    return pwd_context.hash(plain)
+    """Hash a plain-text password using bcrypt."""
+    password_bytes = plain.encode("utf-8")
+    salt = bcrypt.gensalt(rounds=12)
+    hashed = bcrypt.hashpw(password_bytes, salt)
+    return hashed.decode("utf-8")
 
 
 def verify_password(plain: str, hashed: str) -> bool:
-    return pwd_context.verify(plain, hashed)
+    """Verify a plain-text password against a bcrypt hash."""
+    try:
+        return bcrypt.checkpw(plain.encode("utf-8"), hashed.encode("utf-8"))
+    except Exception:
+        return False
 
 
 # ── JWT helpers ────────────────────────────────────────────────────────────────
+
 def _make_token(subject: str, token_type: str, expires_delta: timedelta) -> str:
     expire = datetime.now(timezone.utc) + expires_delta
     payload: dict[str, Any] = {

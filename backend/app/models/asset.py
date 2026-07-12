@@ -52,7 +52,7 @@ class Asset(Base):
 
     # ── Status ─────────────────────────────────────────────────────────────────
     status: Mapped[AssetStatus] = mapped_column(
-        Enum(AssetStatus, name="assetstatus", create_type=True),
+        Enum(AssetStatus, name="assetstatus", create_type=False),
         nullable=False,
         default=AssetStatus.AVAILABLE,
         server_default=AssetStatus.AVAILABLE.value,

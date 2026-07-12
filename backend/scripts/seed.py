@@ -5,12 +5,12 @@ Run from the backend/ directory:
     python -m scripts.seed
 
 What it does:
-  1. Runs pending Alembic migrations (idempotent — safe to re-run).
+  1. Runs pending Alembic migrations (idempotent -- safe to re-run).
   2. Creates the SUPER_ADMIN account if it does not already exist.
   3. Optionally creates sample departments and employee accounts for dev.
 
 The SUPER_ADMIN credentials are read from the environment (.env file).
-Never hardcode credentials — the .env.example contains safe defaults
+Never hardcode credentials -- the .env.example contains safe defaults
 that MUST be changed before any deployment.
 """
 import sys
@@ -33,12 +33,12 @@ from app.models.user import User
 # ── Run Alembic migrations ─────────────────────────────────────────────────────
 
 def run_migrations() -> None:
-    print("▶  Running Alembic migrations …")
+    print("[..] Running Alembic migrations ...")
     alembic_cfg = AlembicConfig(
         str(Path(__file__).resolve().parents[1] / "alembic.ini")
     )
     alembic_command.upgrade(alembic_cfg, "head")
-    print("✔  Migrations complete.")
+    print("[OK] Migrations complete.")
 
 
 # ── Seed SUPER_ADMIN ───────────────────────────────────────────────────────────
@@ -50,7 +50,7 @@ def seed_super_admin(db) -> None:
         .first()
     )
     if existing:
-        print(f"⏭  SUPER_ADMIN already exists ({existing.email}) — skipping.")
+        print(f"[--] SUPER_ADMIN already exists ({existing.email}) -- skipping.")
         return
 
     super_admin = User(
@@ -64,10 +64,10 @@ def seed_super_admin(db) -> None:
     db.add(super_admin)
     db.commit()
     print(
-        f"✔  SUPER_ADMIN created:\n"
+        f"[OK] SUPER_ADMIN created:\n"
         f"     Email   : {super_admin.email}\n"
         f"     Password: {settings.SUPER_ADMIN_PASSWORD}\n"
-        f"   ⚠️  Change this password immediately in production!"
+        f"     [!] Change this password immediately in production!"
     )
 
 
@@ -80,12 +80,12 @@ def seed_dev_fixtures(db) -> None:
     Only runs when APP_ENV == 'development'.
     """
     if settings.APP_ENV != "development":
-        print("⏭  Skipping dev fixtures (APP_ENV != development).")
+        print("[--] Skipping dev fixtures (APP_ENV != development).")
         return
 
     from app.models.department import Department
 
-    # ── Departments ────────────────────────────────────────────────────────────
+    # Departments
     dept_names = [
         ("Engineering", "Software and infrastructure teams"),
         ("Operations", "Day-to-day business operations"),
@@ -104,9 +104,9 @@ def seed_dev_fixtures(db) -> None:
             created_depts.append(existing_dept)
 
     db.commit()
-    print(f"✔  {len(dept_names)} departments ensured.")
+    print(f"[OK] {len(dept_names)} departments ensured.")
 
-    # ── Sample users ───────────────────────────────────────────────────────────
+    # Sample users
     sample_users = [
         {
             "email": "admin@assetflow.com",
@@ -158,15 +158,17 @@ def seed_dev_fixtures(db) -> None:
 
     db.commit()
     print(
-        f"✔  Sample users created (password: {default_password!r}):\n"
-        + "\n".join(f"     • {u['email']} [{u['role'].value}]" for u in sample_users)
+        f"[OK] Sample users created (password: {default_password!r}):\n"
+        + "\n".join(
+            f"     - {u['email']} [{u['role'].value}]" for u in sample_users
+        )
     )
 
 
 # ── Entry point ────────────────────────────────────────────────────────────────
 
 def main() -> None:
-    print("\n━━━  AssetFlow — Database Seed  ━━━\n")
+    print("\n===  AssetFlow - Database Seed  ===\n")
 
     run_migrations()
 
@@ -177,7 +179,7 @@ def main() -> None:
     finally:
         db.close()
 
-    print("\n✅  Seed complete.\n")
+    print("\n[OK] Seed complete.\n")
 
 
 if __name__ == "__main__":

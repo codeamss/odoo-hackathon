@@ -31,7 +31,7 @@ class User(Base):
     full_name: Mapped[str] = mapped_column(String(255), nullable=False)
 
     role: Mapped[UserRole] = mapped_column(
-        Enum(UserRole, name="userrole", create_type=True),
+        Enum(UserRole, name="userrole", create_type=False),
         nullable=False,
         default=UserRole.EMPLOYEE,
         server_default=UserRole.EMPLOYEE.value,

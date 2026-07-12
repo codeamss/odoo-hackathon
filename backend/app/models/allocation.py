@@ -52,7 +52,7 @@ class Allocation(Base):
     )
 
     status: Mapped[AllocationStatus] = mapped_column(
-        Enum(AllocationStatus, name="allocationstatus", create_type=True),
+        Enum(AllocationStatus, name="allocationstatus", create_type=False),
         nullable=False,
         default=AllocationStatus.ACTIVE,
         server_default=AllocationStatus.ACTIVE.value,

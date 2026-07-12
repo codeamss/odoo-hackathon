@@ -17,16 +17,7 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
-    # ── Enums ──────────────────────────────────────────────────────────────────
-    userrole = postgresql.ENUM(
-        "SUPER_ADMIN", "ADMIN", "MANAGER", "AUDITOR", "EMPLOYEE", "VIEWER",
-        name="userrole",
-    )
-    userrole.create(op.get_bind(), checkfirst=True)
-
-    # ── departments ────────────────────────────────────────────────────────────
-    # Created before users because users.department_id references it.
-    # manager_id is added as a separate ALTER after users exists.
+    # ── departments (created before users; manager_id FK added after) ──────────
     op.create_table(
         "departments",
         sa.Column("id", postgresql.UUID(as_uuid=True), primary_key=True),
@@ -49,6 +40,7 @@ def upgrade() -> None:
     op.create_index("ix_departments_name", "departments", ["name"], unique=True)
 
     # ── users ──────────────────────────────────────────────────────────────────
+    # Let SQLAlchemy create the userrole enum automatically via the column type.
     op.create_table(
         "users",
         sa.Column("id", postgresql.UUID(as_uuid=True), primary_key=True),
@@ -60,7 +52,6 @@ def upgrade() -> None:
             sa.Enum(
                 "SUPER_ADMIN", "ADMIN", "MANAGER", "AUDITOR", "EMPLOYEE", "VIEWER",
                 name="userrole",
-                create_type=False,
             ),
             nullable=False,
             server_default="EMPLOYEE",
@@ -91,7 +82,7 @@ def upgrade() -> None:
     op.create_index("ix_users_email", "users", ["email"], unique=True)
     op.create_index("ix_users_department_id", "users", ["department_id"])
 
-    # ── departments.manager_id FK (deferred — users table now exists) ──────────
+    # ── departments.manager_id FK (users table now exists) ─────────────────────
     op.create_foreign_key(
         "fk_departments_manager_id_users",
         "departments",
@@ -109,5 +100,4 @@ def downgrade() -> None:
     op.drop_table("users")
     op.drop_index("ix_departments_name", table_name="departments")
     op.drop_table("departments")
-
-    postgresql.ENUM(name="userrole").drop(op.get_bind(), checkfirst=True)
+    sa.Enum(name="userrole").drop(op.get_bind(), checkfirst=True)

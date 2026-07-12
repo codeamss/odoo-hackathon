@@ -47,14 +47,14 @@ class MaintenanceRequest(Base):
     )
 
     status: Mapped[MaintenanceStatus] = mapped_column(
-        Enum(MaintenanceStatus, name="maintenancestatus", create_type=True),
+        Enum(MaintenanceStatus, name="maintenancestatus", create_type=False),
         nullable=False,
         default=MaintenanceStatus.DRAFT,
         server_default=MaintenanceStatus.DRAFT.value,
         index=True,
     )
     priority: Mapped[MaintenancePriority] = mapped_column(
-        Enum(MaintenancePriority, name="maintenancepriority", create_type=True),
+        Enum(MaintenancePriority, name="maintenancepriority", create_type=False),
         nullable=False,
         default=MaintenancePriority.MEDIUM,
         server_default=MaintenancePriority.MEDIUM.value,

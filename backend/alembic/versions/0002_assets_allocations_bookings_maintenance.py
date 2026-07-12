@@ -18,39 +18,6 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
-    # ── New enums ──────────────────────────────────────────────────────────────
-    assetstatus = postgresql.ENUM(
-        "AVAILABLE", "ALLOCATED", "RESERVED", "UNDER_MAINTENANCE",
-        "LOST", "RETIRED", "DISPOSED",
-        name="assetstatus",
-    )
-    assetstatus.create(op.get_bind(), checkfirst=True)
-
-    allocationstatus = postgresql.ENUM(
-        "ACTIVE", "RETURNED", "REVOKED",
-        name="allocationstatus",
-    )
-    allocationstatus.create(op.get_bind(), checkfirst=True)
-
-    bookingstatus = postgresql.ENUM(
-        "PENDING", "CONFIRMED", "CANCELLED", "COMPLETED", "NO_SHOW",
-        name="bookingstatus",
-    )
-    bookingstatus.create(op.get_bind(), checkfirst=True)
-
-    maintenancestatus = postgresql.ENUM(
-        "DRAFT", "SUBMITTED", "UNDER_REVIEW", "APPROVED",
-        "IN_PROGRESS", "COMPLETED", "REJECTED", "CANCELLED",
-        name="maintenancestatus",
-    )
-    maintenancestatus.create(op.get_bind(), checkfirst=True)
-
-    maintenancepriority = postgresql.ENUM(
-        "LOW", "MEDIUM", "HIGH", "CRITICAL",
-        name="maintenancepriority",
-    )
-    maintenancepriority.create(op.get_bind(), checkfirst=True)
-
     # ── asset_categories ───────────────────────────────────────────────────────
     op.create_table(
         "asset_categories",
@@ -81,9 +48,11 @@ def upgrade() -> None:
                   sa.ForeignKey("departments.id", ondelete="SET NULL"), nullable=True),
         sa.Column(
             "status",
-            sa.Enum("AVAILABLE", "ALLOCATED", "RESERVED", "UNDER_MAINTENANCE",
-                    "LOST", "RETIRED", "DISPOSED",
-                    name="assetstatus", create_type=False),
+            sa.Enum(
+                "AVAILABLE", "ALLOCATED", "RESERVED", "UNDER_MAINTENANCE",
+                "LOST", "RETIRED", "DISPOSED",
+                name="assetstatus",
+            ),
             nullable=False, server_default="AVAILABLE",
         ),
         sa.Column("purchase_date", sa.Date, nullable=True),
@@ -111,16 +80,20 @@ def upgrade() -> None:
                   sa.ForeignKey("assets.id", ondelete="CASCADE"), nullable=False),
         sa.Column(
             "from_status",
-            sa.Enum("AVAILABLE", "ALLOCATED", "RESERVED", "UNDER_MAINTENANCE",
-                    "LOST", "RETIRED", "DISPOSED",
-                    name="assetstatus", create_type=False),
+            sa.Enum(
+                "AVAILABLE", "ALLOCATED", "RESERVED", "UNDER_MAINTENANCE",
+                "LOST", "RETIRED", "DISPOSED",
+                name="assetstatus", create_constraint=False,
+            ),
             nullable=True,
         ),
         sa.Column(
             "to_status",
-            sa.Enum("AVAILABLE", "ALLOCATED", "RESERVED", "UNDER_MAINTENANCE",
-                    "LOST", "RETIRED", "DISPOSED",
-                    name="assetstatus", create_type=False),
+            sa.Enum(
+                "AVAILABLE", "ALLOCATED", "RESERVED", "UNDER_MAINTENANCE",
+                "LOST", "RETIRED", "DISPOSED",
+                name="assetstatus", create_constraint=False,
+            ),
             nullable=False,
         ),
         sa.Column("changed_by_id", postgresql.UUID(as_uuid=True),
@@ -145,8 +118,7 @@ def upgrade() -> None:
                   sa.ForeignKey("users.id", ondelete="RESTRICT"), nullable=False),
         sa.Column(
             "status",
-            sa.Enum("ACTIVE", "RETURNED", "REVOKED",
-                    name="allocationstatus", create_type=False),
+            sa.Enum("ACTIVE", "RETURNED", "REVOKED", name="allocationstatus"),
             nullable=False, server_default="ACTIVE",
         ),
         sa.Column("allocated_at", sa.DateTime(timezone=True),
@@ -167,11 +139,8 @@ def upgrade() -> None:
                     "allocations", ["allocated_to_user_id"])
     # Partial unique index: one ACTIVE allocation per asset
     op.execute(
-        """
-        CREATE UNIQUE INDEX uq_allocations_active_asset
-        ON allocations (asset_id)
-        WHERE status = 'ACTIVE'
-        """
+        "CREATE UNIQUE INDEX uq_allocations_active_asset "
+        "ON allocations (asset_id) WHERE status = 'ACTIVE'"
     )
 
     # ── bookings ───────────────────────────────────────────────────────────────
@@ -185,7 +154,7 @@ def upgrade() -> None:
         sa.Column(
             "status",
             sa.Enum("PENDING", "CONFIRMED", "CANCELLED", "COMPLETED", "NO_SHOW",
-                    name="bookingstatus", create_type=False),
+                    name="bookingstatus"),
             nullable=False, server_default="PENDING",
         ),
         sa.Column("start_time", sa.DateTime(timezone=True), nullable=False),
@@ -218,13 +187,12 @@ def upgrade() -> None:
             "status",
             sa.Enum("DRAFT", "SUBMITTED", "UNDER_REVIEW", "APPROVED",
                     "IN_PROGRESS", "COMPLETED", "REJECTED", "CANCELLED",
-                    name="maintenancestatus", create_type=False),
+                    name="maintenancestatus"),
             nullable=False, server_default="DRAFT",
         ),
         sa.Column(
             "priority",
-            sa.Enum("LOW", "MEDIUM", "HIGH", "CRITICAL",
-                    name="maintenancepriority", create_type=False),
+            sa.Enum("LOW", "MEDIUM", "HIGH", "CRITICAL", name="maintenancepriority"),
             nullable=False, server_default="MEDIUM",
         ),
         sa.Column("description", sa.Text, nullable=False),
@@ -269,7 +237,6 @@ def downgrade() -> None:
     op.drop_table("asset_status_history")
     op.drop_table("assets")
     op.drop_table("asset_categories")
-
     for name in ["maintenancepriority", "maintenancestatus",
                  "bookingstatus", "allocationstatus", "assetstatus"]:
-        postgresql.ENUM(name=name).drop(op.get_bind(), checkfirst=True)
+        sa.Enum(name=name).drop(op.get_bind(), checkfirst=True)
