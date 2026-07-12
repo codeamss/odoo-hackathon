@@ -80,8 +80,8 @@ const NAV_ITEMS: NavItem[] = [
     roles: ["SUPER_ADMIN", "ADMIN", "MANAGER"],
   },
   {
-    label: "Departments",
-    to: "/departments",
+    label: "Organization",
+    to: "/organization",
     icon: <Building2 className="h-4 w-4" />,
     roles: ["SUPER_ADMIN", "ADMIN"],
   },

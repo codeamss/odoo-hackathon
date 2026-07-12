@@ -1,11 +1,12 @@
 """
 Department model.
 Referenced by users, assets, and allocations.
+Supports parent-child hierarchy via parent_dept_id self-reference.
 """
 import uuid
 from datetime import datetime
 
-from sqlalchemy import DateTime, ForeignKey, String, Text, func
+from sqlalchemy import Boolean, DateTime, ForeignKey, String, Text, func
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -21,11 +22,23 @@ class Department(Base):
     name: Mapped[str] = mapped_column(String(255), unique=True, nullable=False, index=True)
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
 
-    # The manager is a User; nullable because the manager user may not exist yet
+    # Department Head (Manager role user)
     manager_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True),
         ForeignKey("users.id", ondelete="SET NULL"),
         nullable=True,
+    )
+
+    # Optional parent department for hierarchy
+    parent_dept_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("departments.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+    )
+
+    is_active: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, default=True, server_default="true"
     )
 
     created_at: Mapped[datetime] = mapped_column(
@@ -49,6 +62,17 @@ class Department(Base):
         back_populates="department",
         foreign_keys="User.department_id",
     )
+    parent: Mapped["Department | None"] = relationship(
+        "Department",
+        remote_side="Department.id",
+        foreign_keys=[parent_dept_id],
+        back_populates="children",
+    )
+    children: Mapped[list["Department"]] = relationship(
+        "Department",
+        foreign_keys=[parent_dept_id],
+        back_populates="parent",
+    )
 
     def __repr__(self) -> str:
-        return f"<Department id={self.id} name={self.name}>"
+        return f"<Department id={self.id} name={self.name} active={self.is_active}>"
